@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Array_027_RemoveElement {
     /* 
     https://leetcode.com/problems/remove-element/
