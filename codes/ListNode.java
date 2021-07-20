@@ -35,6 +35,11 @@ public class ListNode {
         return result.stream().mapToInt(Integer::intValue).toArray();
     }
 
+    @Override
+    public String toString() {
+        return Arrays.toString(ListNode.toList(this));
+    }
+
     public static void main(String[] args) {
         int[] i = new int[]{};
         ListNode j = ListNode.transListToListNode(i);
