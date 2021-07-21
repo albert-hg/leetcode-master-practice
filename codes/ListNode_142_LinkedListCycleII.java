@@ -1,3 +1,6 @@
+import java.util.HashSet;
+import java.util.Set;
+
 public class ListNode_142_LinkedListCycleII {
     /* 
     https://leetcode.com/problems/linked-list-cycle-ii/ 
@@ -32,7 +35,10 @@ public class ListNode_142_LinkedListCycleII {
     */
 
     /* 
-    如果要算出相遇的節點，則會需要計算一下。假設：
+    做這題如果要用2-pointer的方式則會需要分成兩個步驟做：
+        1. 先求出環內相遇點
+        2. 用起點與相遇點求出環的入口
+    如果要算出環的入口，則會需要計算一下。假設：
         環外節點數 = L 個
         環內節點數 = K 個
         環內相遇點為 i，剩下為 j，則 K = i+j
@@ -48,15 +54,60 @@ public class ListNode_142_LinkedListCycleII {
     同時步進所相遇的點，就為環形入口。
     */
     public static ListNode detectCycle(ListNode head) {
-        // TODO: implement
-        return head;
+        if (head == null || head.next == null) return null;
+        // 求得環內相遇點
+        ListNode pSlow = head;
+        ListNode pFast = head.next;
+        while (pSlow != pFast) {
+            pSlow = pSlow.next;
+            if (pFast == null || pFast.next == null) return null;
+            pFast = pFast.next.next;
+        }
+        // 已經確定有環。從起點與環內相遇點開始逼近，找到下一次的相遇點
+        pSlow = head;
+        pFast = pFast.next;
+        while (pSlow != pFast) {
+            pSlow = pSlow.next;
+            pFast = pFast.next;
+        }
+        return pSlow;
+    }
+
+    /* 
+    這一題的最一開始最直接想到的是：
+        因為要判斷是否重複，所以把走過的node放進set比較出現第二次的結果就是環的入口」，最大空間複雜度為O(n)。
+    但因為題目期望我們使用的最大空間複雜度為O(1)，所以不適用。不過還是紀錄一下我的想法。
+    */
+    public static ListNode detectCycle_Set(ListNode head) {
+        Set<ListNode> nodes = new HashSet<>();
+        ListNode cur = head;
+        while (cur != null) {
+            if (nodes.contains(cur)) return cur;
+            else nodes.add(cur);
+            cur = cur.next;
+        }
+        return cur;
     }
 
     public static boolean test(int[] input, int pos) {
-        return false;
+        ListNode dummyHead = new ListNode(0);
+        ListNode cur = dummyHead;
+        ListNode tailNext = null;
+        for (int i = 0; i < input.length; i++) {
+            ListNode node = new ListNode(input[i]);
+            if (i == pos) tailNext = node;
+            cur.next = node;
+            cur = cur.next;
+        }
+        cur.next = tailNext;
+        ListNode ouput = detectCycle_Set(dummyHead.next);
+        return ouput == tailNext;
     }
 
     public static void main(String[] args) {
-        
+        System.out.println(test(new int[]{3,2,0,-4}, 1));
+        System.out.println(test(new int[]{1,2}, 0));
+        System.out.println(test(new int[]{1}, 0));
+        System.out.println(test(new int[]{1}, -1));
     }
 }
